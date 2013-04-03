@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block subtitle %}Cloud Formation{% endblock %}
+{% block body %}
+    <table class='data'>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+{% for stack in stacks %}
+      <tr>
+        {% if "COMPLETE" in stack.stack_status %}
+        <td><div class='on'></div></td>
+        {% else %}
+        <td><div class='off'></div></td>
+        {% endif %}
+        <td>{{ stack.stack_name }}</td>
+        <td>{{ stack.stack_status }}</td>
+        <td><a href='/cloudformation/template/{{ stack.stack_name }}'>Edit template</a></td>
+      </tr>
+{% endfor %}
+    </tbody>
+   </table>
+{% endblock %}

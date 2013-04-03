@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block head %}
+    <script type="text/javascript" src="/static/lib/jsoneditor/jsoneditor-min.js"></script>
+    <script type="text/javascript" src="/static/lib/ace/ace-min.js"></script>
+    <script type="text/javascript" src="/static/app-min.js"></script>
+{% endblock %}
+
+{% block subtitle %}Cloudformation template {{ template_name }}{% endblock %}
+{% block body %}
+<div id="editorcontainer" style="display: none;">
+<button id="toEditor" onclick='app.CodeToEditor();' class="convert" title="Code to editor" > &rarr; </button>
+<button id="toCode" onclick='app.editorToCode();' title="Editor to code"> &larr; </button>
+<div style='width: 100%;'>
+<table class=data ><tr><td>
+<div id="jsonformatter"></div>
+</td><td>
+<div id="jsoneditor"></div>
+</td></tr></table>
+</div>
+</div>
+
+<script type="text/javascript">
+    disallowRegionSelect();
+    app.load();
+    formatter.set(); editor.set();
+    app.resize();
+    function load_template(data) {
+        formatter.set(data);
+        editor.set(formatter.get());
+        jQuery(document.getElementById("editorcontainer")).show();
+        announce("Loading complete!")
+    }
+    announce("Loading template...")
+    Dajaxice.AutoScaleGroups.get_cloudformation_template(load_template, {"template_name": "{{ template_name }}"});
+</script>
+
+{% endblock %}

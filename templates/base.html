@@ -1,0 +1,254 @@
+<html>
+  <head>
+    <script type="text/javascript" src="/static/js/jquery.js"></script>
+    <script>
+    $.noConflict();
+    </script>
+{% load dajaxice_templatetags %}
+    <link rel="stylesheet" type="text/css" href="/static/lib/jsoneditor/jsoneditor-min.css">
+    <!-- TODO: droid font
+        <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+    -->
+
+
+    <title>ScaleAton</title>
+    {% dajaxice_js_import %}
+  <script>
+   function loadRegions(data) {
+        var select = document.getElementById("regionSelect");
+        for (var i=0; i < data.regions.length ;i++) {
+            option = document.createElement("OPTION");
+            option.setAttribute("value", data.regions[i]);
+            option.innerHTML = data.regions[i];
+            select.appendChild(option);
+        }
+        if (data.current != null)
+            select.value = data['current'];
+   }
+   function setRegion(name) {
+        Dajaxice.frontend.set_region(function(d) { location.reload(true); }, {'name': name});
+   }
+   function onLoad() {
+        Dajaxice.frontend.get_regions(loadRegions);
+   }
+   function announce(text) {
+        var newAlert = document.createElement("div");
+        newAlert.setAttribute("class", "alert");
+        newAlert.innerHTML = text;
+        jQuery(document.getElementById("alert_container")).append(newAlert);
+        jQuery(newAlert).fadeOut(4000, function() { $(this).remove(); });
+    }
+    function disallowRegionSelect() {
+            document.getElementById("regionSelect").disabled=true;
+    }
+
+  </script>
+<script language="javascript" type="text/javascript" src="/static/tfilter/actb.js"></script><!-- External script -->
+<script language="javascript" type="text/javascript" src="/static/tfilter/tablefilter.js"></script>
+  <style>
+    .invis { display: none; }
+    tr.fltrow input { width: 100%; }
+    div#alert_container {
+        top: 0;
+        left: 100%;
+        margin-left: -250px;
+        pointer-events: none;
+        display: block;
+        z-index: 10;
+        position: fixed;
+        width: 250px;
+    }
+    div.error {
+        display: none;
+    }
+
+    div.alert {
+        overflow: hide;
+        border-radius: 10px;
+        margin: 2px;
+        text-align: center;
+        min-height: 40px;
+        color: #fff;
+        width: 100%;
+background: #aebcbf; /* Old browsers */
+background: -moz-linear-gradient(top,  #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#aebcbf), color-stop(50%,#6e7774), color-stop(51%,#0a0e0a), color-stop(100%,#0a0809)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* IE10+ */
+background: linear-gradient(to bottom,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#aebcbf', endColorstr='#0a0809',GradientType=0 ); /* IE6-9 */
+    }
+    body {
+        -webkit-font-smoothing: antialiased;
+        font-smoothing: antialiased;
+        background: #fff url("/static/datacenter.jpeg") no-repeat center center fixed;
+        background-size: cover;
+        margin:0;
+        padding:0;
+        font-family: arial;
+    }
+
+    table.data { padding:0; margin:0; background: rgba(0,0,0,0.5); border-spacing: 1px; border-radius: 5px; }
+    table.data tr { padding: 0; margin: 0; }
+    table.data tr td { padding: 5px; margin: 0; background: rgba(240,240,240, 0.8); border-radius: 5px; }
+    table.data tr.inactive td { background: rgba(140,140,140, 0.5); }
+    table.data tr th { color: #fff; }
+
+    div.top_panel {
+        z-index: 10;
+        padding: 10px;
+        width: 800px;
+        position: fixed;
+        left: 50%;
+        margin-left: -400px;
+        top: 0;
+        color: #eee;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border: 1px solid #000;
+        background: rgba(0,0,0,0.6);
+    }
+    div.status_led {
+        padding: 0; margin :0;
+        display: inline-block;
+        height: 15px;
+        width: 15px;
+        border-radius: 5px;
+        background: #0F0;
+    }
+    tr.inactive div.status_led {
+        padding: 0; margin :0;
+        display: inline-block;
+        height: 15px;
+        width: 15px;
+        border-radius: 5px;
+        background: #F00;
+    }
+
+    div.sitecontent {
+        margin-top: 150px;
+        padding: 20px;
+    }
+
+    div.select select {
+           width: 268px;
+           padding: 5px;
+           font-size: 16px;
+           line-height: 1;
+           border: 0;
+           border-radius: 0;
+           height: 34px;
+           -webkit-appearance: none;
+        background: #f6f8f9; /* Old browsers */
+        background: -moz-linear-gradient(top,  #f6f8f9 0%, #e5ebee 50%, #d7dee3 51%, #f5f7f9 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f6f8f9), color-stop(50%,#e5ebee), color-stop(51%,#d7dee3), color-stop(100%,#f5f7f9)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #f6f8f9 0%,#e5ebee 50%,#d7dee3 51%,#f5f7f9 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #f6f8f9 0%,#e5ebee 50%,#d7dee3 51%,#f5f7f9 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #f6f8f9 0%,#e5ebee 50%,#d7dee3 51%,#f5f7f9 100%); /* IE10+ */
+        background: linear-gradient(to bottom,  #f6f8f9 0%,#e5ebee 50%,#d7dee3 51%,#f5f7f9 100%); /* W3C */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#f5f7f9',GradientType=0 ); /* IE6-9 */
+    }
+
+    div.select select:disabled {
+background: #aebcbf; /* Old browsers */
+background: -moz-linear-gradient(top,  #aebcbf 0%, #6e7774 50%, #0a0e0a 51%, #0a0809 100%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#aebcbf), color-stop(50%,#6e7774), color-stop(51%,#0a0e0a), color-stop(100%,#0a0809)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* IE10+ */
+background: linear-gradient(to bottom,  #aebcbf 0%,#6e7774 50%,#0a0e0a 51%,#0a0809 100%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#aebcbf', endColorstr='#0a0809',GradientType=0 ); /* IE6-9 */
+    color: #fff;
+    }
+
+    div.select {
+        border: 1px solid #000;
+        display: inline-block;
+        width: 240px;
+        height: 34px;
+        overflow: hidden;
+        background: url(http://cdn.bavotasan.com/wp-content/uploads/2011/05/down_arrow_select.jpg) no-repeat right #ddd;
+        border: 1px solid #ccc;
+    }
+
+    pre {
+        padding: 10px;
+        border: 1px solid #000;
+        border-radius: 10px;
+        margin: 5px;
+        background: rgba(255,255,255,0.8);
+    }
+    div.top_panel div.section {
+        display: inline-block;
+        vertical-align: top;
+        padding-right: 10px;
+    }
+    
+    div.top_panel a:hover {  
+        color: #81BEF7;
+    }
+    div.top_panel a {  
+        color: #fff; 
+        display: block;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    div.content {
+        overflow-x: auto;
+    }
+    h2.subtitle {
+        width: 700px;
+        height: 30px;
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+
+    }
+    div.top_panel h1 {
+        font-family: "Times New Roman";
+        margin: 0px; padding: 0px;
+        color: #A9F5BC;
+    }
+    div.top_panel h2 {
+        font-family: "Georgia";
+    }
+#jsonformatter, #jsoneditor {
+    height: 800px;
+    min-width: 400px;
+    width: 800px;
+    vertical-align: top;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+  </style>
+{% block head %}{% endblock %}
+  </head>
+  <body onload='onLoad();'>
+    <div id='alert_container'/></div>
+    <div class='top_panel'>
+            <div>
+            <div class='section'>
+            <h1>ScaleAton</h1>
+            </div>
+            <div class='section'>
+                <a href='/cloudformation'>Cloud Formation</a>
+                <a href='/groups'>Groups</a>
+            </div>
+            </div>
+            <div class='section'>
+                <div class=select>
+                <select id='regionSelect' onchange='setRegion(this.value);'></select>
+                </div>
+            </div>
+            <h2 class='subtitle'>{% block subtitle %}{% endblock %}</h2>
+    </div>
+    <div class='sitecontent'>
+    {% block body %}{% endblock %}
+    </div>
+
+  </body>
+</html>

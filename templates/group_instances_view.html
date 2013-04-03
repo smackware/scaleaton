@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block subtitle %}
+AutoScale groups
+{% endblock %}
+{% block body %}
+<script>
+function scaleGroup(name){
+    announce("Scaling group <small>" + name + "</small>");
+    min_size = jQuery('#' + name + ' input[name="min_size"]').val();
+    max_size = jQuery('#' + name + ' input[name="max_size"]').val();
+    desired_capacity = jQuery('#' + name + ' input[name="desired_capacity"]').val();
+    Dajaxice.AutoScaleGroups.scale_group(announce, {
+        "name": name,
+        "min_size": min_size,
+        "max_size": max_size,
+        "desired_capacity": desired_capacity
+    });
+    if (desired_capacity == 0)  {
+            jQuery('#' + name).attr('class', "inactive");
+            jQuery('#' + name + " .status_led .invis").html("off");
+    } else {
+            jQuery('#' + name).attr('class', "");
+            jQuery('#' + name + " .status_led .invis").html("on");
+    }
+    
+}
+</script>
+<style>
+   td.size input[type='text'] { width: 50px; }
+</style>
+<table class='data' id='instancetable'>
+<thead>
+        <tr>
+            <th></th>
+            <th>DNS</th>
+            <th>State</th>
+            <th>IP</th>
+            <th>Id</th>
+            <th></th>
+        </tr>
+</thead>
+<tbody>
+{% for instance in instances %}
+        {% if instance.state != "running"  %}
+        <tr class='inactive' id='{{ group.name }}'>
+        {% else %}
+        <tr id='{{ instance.id }}'>
+        {% endif %}
+           <td>
+        {% if instance.state != "running"  %}
+            <div class='status_led' title='off' ><p class='invis'>off</p></div>
+        {% else %}
+            <div class='status_led' title='on'><p class='invis'>on</p></div>
+        {% endif %}
+            </td>
+          <td ><h4>{{ instance.dns_name }}</h4></td>
+          <td class='size'>{{ instance.state }}</td> 
+          <td class='size'>{{ instance.ip_address }}</td> 
+          <td class='size'>{{ instance.id}}</td> 
+          <td><a href='/launchconfig/{{ instance.launch_config_name }}'>Launch config</a></td>
+        </tr>
+{% endfor %}
+</tbody>
+</table>
+<script>
+    var grouptable_props =  {
+                            col_0: "select",
+                            col_2: "none",
+                            col_3: "none",
+                            col_4: "none",
+                            col_5: "none",
+                        };
+
+setFilterGrid( "instancetable" , grouptable_props);
+</script>
+{% endblock %}

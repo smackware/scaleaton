@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block head %}
+{% endblock %}
+{% block subtitle %}
+Launch config: {{ launch_config.name }}
+{% endblock %}
+{% block body %}
+{% if action == "edit" %}
+<textarea>
+{% else %}
+<pre id='launchconfig'>
+{% endif %}
+
+{{ launch_config.user_data }}
+{% if action == "edit" %}
+</textarea>
+{% else %}
+</pre>
+{% endif %}
+<script>
+disallowRegionSelect();
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block subtitle %}
+AutoScale groups
+{% endblock %}
+{% block body %}
+<script>
+
+function scaleGroup(name){
+    announce("Scaling group <small>" + name + "</small>");
+    min_size = jQuery('#' + name + ' input[name="min_size"]').val();
+    max_size = jQuery('#' + name + ' input[name="max_size"]').val();
+    desired_capacity = jQuery('#' + name + ' input[name="desired_capacity"]').val();
+    Dajaxice.AutoScaleGroups.scale_group(announce, {
+        "name": name,
+        "min_size": min_size,
+        "max_size": max_size,
+        "desired_capacity": desired_capacity
+    });
+    if (desired_capacity == 0)  {
+            jQuery('#' + name).attr('class', "inactive");
+            jQuery('#' + name + " .status_led .invis").html("off");
+    } else {
+            jQuery('#' + name).attr('class', "");
+            jQuery('#' + name + " .status_led .invis").html("on");
+    }
+    
+}
+</script>
+<style>
+   td.size input[type='text'] { width: 50px; }
+</style>
+<table class='data' id='grouptable'>
+<thead>
+        <tr>
+            <th></th>
+            <th>GroupName</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Desired</th>
+            <th>Update</th>
+            <th></th>
+            <th></th>
+        </tr>
+</thead>
+<tbody>
+{% for group in groups %}
+        
+        {% if group.min_size == 0 and group.max_size == 0 and group.desired_capacity == 0 %}
+        <tr class='inactive' id='{{ group.name }}'>
+        {% else %}
+        <tr id='{{ group.name }}'>
+        {% endif %}
+           <td>
+        {% if group.min_size == 0 and group.max_size == 0 and group.desired_capacity == 0 %}
+            <div class='status_led' title='off' ><p class='invis'>off</p></div>
+        {% else %}
+            <div class='status_led' title='on'><p class='invis'>on</p></div>
+        {% endif %}
+            </td>
+            <td ><h4>{{ group.name }}</h4></td>
+          <input type='hidden' name='name' value='{{ group.name }}'/>
+          <td class='size'><input name='min_size' type='text' value='{{ group.min_size }}'/></td> 
+          <td class='size'><input name='max_size' type='text' value='{{ group.max_size }}'/></td> 
+          <td class='size'><input name='desired_capacity' type='text' value='{{ group.desired_capacity }}'/></td> 
+          <td><button onclick="scaleGroup('{{ group.name }}');">update</button></td>
+          <td><a href='/launchconfig/{{ group.launch_config_name }}'>Launch config</a></td>
+          <td><a href='/groups/instances/{{ group.name }}'>Instances</a></td>
+        </tr>
+{% endfor %}
+</tbody>
+</table>
+<script>
+    var grouptable_props =  {
+                            col_0: "select",
+                            col_2: "none",
+                            col_3: "none",
+                            col_4: "none",
+                            col_5: "none",
+                            col_6: "none",
+                            col_7: "none",
+                            col_8: "none"
+                        };
+
+setFilterGrid( "grouptable" , grouptable_props);
+</script>
+{% endblock %}
